@@ -7,3 +7,4 @@ class User(Base):
     name = Column(String(60))
     username = Column(String(60), unique=True)
     password = Column(String(60))
+    role = Column(String(10), default='user')
