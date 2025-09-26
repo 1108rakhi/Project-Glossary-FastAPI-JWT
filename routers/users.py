@@ -1,9 +1,9 @@
 from jose import jwt, JWTError
 from datetime import datetime, timedelta, UTC
 from sqlalchemy.orm import Session
-from myapp.models import model
-from myapp.databases import database
-from myapp.schemas import schema
+from models import model
+from databases import database
+from schemas import schema
 from fastapi import APIRouter, Depends, HTTPException, Query, Header
 
 # setting up jwt manually
@@ -65,7 +65,7 @@ def login(request: schema.LoginRequest, db:Session = Depends(database.get_db)):
     if not user or user.password != request.password:
         raise HTTPException(status_code=401, detail = 'Invalid username or password')
     
-    access_token = create_token(data = {"sub":user.username, 'role':user.role})
+    access_token = create_token(data = {"sub":user.name, 'role':user.role})
     return {'access_token' : access_token, 'token_type': "bearer"}
 
 
@@ -97,4 +97,5 @@ def delete_user(id: int, db: Session = Depends(database.get_db),checkrole:dict =
         raise HTTPException(status_code= 404, detail='User not found')
     db.delete(del_user)
     db.commit()
+    db.refresh(del_user)
     return {'message':'User deleted successfully'}
