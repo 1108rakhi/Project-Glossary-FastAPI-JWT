@@ -16,7 +16,7 @@ class CreateUser(BaseModel):
 
 #user get response
 class UserResponse(BaseModel):
-    id : int
+    # id : int
     name : str
     username : str
     role : str
