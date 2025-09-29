@@ -1,5 +1,6 @@
 from fastapi import FastAPI
-from routers import users,glossaries
+from router_users import users
+from router_glossary import glossaries
 from models import model
 from databases.database import engine
 
