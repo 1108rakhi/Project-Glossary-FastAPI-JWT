@@ -9,9 +9,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Header
 # setting up jwt manually
 secret_key = 'mysecret'
 Algorithm = 'HS256'
-token_expiry = 5
+token_expiry = 15
 
-router = APIRouter()
+router = APIRouter(tags=['Users'])
 
 # creating token
 def create_token(data:dict, expire_time:timedelta = timedelta(minutes=token_expiry)):
@@ -65,18 +65,29 @@ def login(request: schema.LoginRequest, db:Session = Depends(database.get_db)):
     if not user or user.password != request.password:
         raise HTTPException(status_code=401, detail = 'Invalid username or password')
     
-    access_token = create_token(data = {"sub":user.name, 'role':user.role})
+    access_token = create_token(data = {"sub":str(user.id), 'role':user.role})
     return {'access_token' : access_token, 'token_type': "bearer"}
 
-
+# get all users
 @router.get("/users", response_model=list[schema.UserResponse])
-def get_users(name : str | None = Query(None), db : Session = Depends(database.get_db)):
-    query = db.query(model.User)
-    if name:
-        query = query.filter(model.User.name == name)
-    users = query.all()
-    return users
+def get_users(db : Session = Depends(database.get_db)):
+    user = db.query(model.User.name,model.User.username,model.User.role).all()
+    if not user:
+        raise HTTPException(status_code=404, detail='User not found')
+    # all_users = user.all()
+    return user
 
+
+# get user by id
+@router.get("/users/{id}", response_model=list[schema.UserResponse])
+def get_users_by_id(id:int, db : Session = Depends(database.get_db)):
+    user = db.query(model.User).filter(model.User.id == id).all()
+    if not user:
+        raise HTTPException(status_code=404, detail='User not found')
+    
+    return user
+
+# updating user
 @router.put('/users/{id}', response_model=schema.UserResponse)
 def update_user(id: int, update:schema.CreateUser, db:Session = Depends(database.get_db),checkrole:dict = Depends(check_role)):
     upd_user = db.query(model.User).filter(model.User.id == id).first()
@@ -90,6 +101,7 @@ def update_user(id: int, update:schema.CreateUser, db:Session = Depends(database
     db.refresh(upd_user)
     return upd_user
 
+# deleting user
 @router.delete('/users/{id}')
 def delete_user(id: int, db: Session = Depends(database.get_db),checkrole:dict = Depends(check_role)):
     del_user = db.query(model.User).filter(model.User.id == id).first()
