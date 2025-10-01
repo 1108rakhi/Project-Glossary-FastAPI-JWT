@@ -44,3 +44,9 @@ class GlossaryResponse(BaseModel):
     updated_at : Optional[datetime] = None
     class Config:
         orm_mode = True
+
+class GlossaryPagination(BaseModel):
+    term: str
+    description : str
+    class Config:
+        orm_mode = True

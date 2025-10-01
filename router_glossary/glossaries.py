@@ -5,6 +5,8 @@ from databases import database
 from schemas import schema
 from fastapi import APIRouter, Depends, HTTPException, Query, Header
 from router_users.users import decode_token
+from fastapi_pagination import Page, add_pagination, paginate
+
 
 router = APIRouter(tags = ['Glossaries'])
 
@@ -30,13 +32,14 @@ def create_glossary(create:schema.CreateGlossary, db : Session=Depends(database.
     return new_term
 
 # get all glossaries
-@router.get('/glossary', response_model=list[schema.GlossaryResponse])
+@router.get('/glossary', response_model=Page[schema.GlossaryPagination])
 def get_glossary(db:Session = Depends(database.get_db)):
     glossary = db.query(model.Glossary)
     if not glossary:
         raise HTTPException(status_code=404, detail='Term not found')
     all_terms = glossary.all()
-    return all_terms
+    return paginate(all_terms)
+add_pagination(router)
 
 #get glossaries by id
 @router.get('/glossary/{id}', response_model=schema.GlossaryResponse)
