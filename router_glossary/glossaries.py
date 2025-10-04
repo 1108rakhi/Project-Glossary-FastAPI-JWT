@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 from models import model
 from databases import database
@@ -63,7 +63,7 @@ def update_glossary(id: int, update:schema.UpdateGlossary, db:Session = Depends(
     db.refresh(upd_glossary)
     return upd_glossary
 
-#delete glossaries
+# delete glossaries
 @router.delete('/glossary/{id}')
 def delete_glossary(id: int, db: Session = Depends(database.get_db)):
     del_glossary = db.query(model.Glossary).filter(model.Glossary.id == id).first()
