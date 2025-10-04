@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
 #mysql connection url
-db_url = "mysql+mysqlconnector://root:rootroot@localhost:3306/project2"
+db_url = "mysql+mysqlconnector://dextrus:Dextrus!1@10.10.20.29:3306/glossary_project"
 engine = create_engine(db_url)
 SessionLocal = sessionmaker(bind = engine, autoflush=False, autocommit = False)
 

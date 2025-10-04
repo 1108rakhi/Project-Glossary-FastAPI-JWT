@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, DateTime
 from databases.database import Base
 from sqlalchemy.sql import func
-from datetime import datetime, UTC
+from datetime import datetime, timezone
 class User(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True, index=True)
@@ -17,5 +17,5 @@ class Glossary(Base):
     description = Column(String(255))
     created_by = Column(String(50))
     updated_by = Column(String(50))
-    created_at = Column(DateTime(timezone=True),default=datetime.now(UTC))
-    updated_at = Column(DateTime(timezone=True), onupdate=datetime.now(UTC))
+    created_at = Column(DateTime(timezone=True),default=datetime.now(timezone.utc))
+    updated_at = Column(DateTime(timezone=True), onupdate=datetime.now(timezone.utc))

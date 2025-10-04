@@ -1,5 +1,5 @@
 from jose import jwt, JWTError
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 from models import model
 from databases import database
@@ -16,7 +16,7 @@ router = APIRouter(tags=['Users'])
 # creating token
 def create_token(data:dict, expire_time:timedelta = timedelta(minutes=token_expiry)):
     to_encode = data.copy()
-    expire = datetime.now(UTC) + expire_time
+    expire = datetime.now(timezone.utc) + expire_time
     to_encode.update({"exp":expire})
     return jwt.encode(to_encode, secret_key, algorithm = Algorithm)
 
@@ -29,13 +29,13 @@ def decode_token(token: str):
     
 
 # checking role
-def check_role(authorization : str , role_access: str = 'admin'):
+def check_role(authorization : str):
     if not authorization:
         raise HTTPException(status_code=401, detail='Invalid authorization')
     
     role_check = decode_token(authorization)
     role = role_check.get('role')
-    if role != role_access:
+    if role != "admin":
         raise HTTPException(status_code=403, detail='Access denied')
     return role_check
 
