@@ -15,3 +15,8 @@ pydantic-core==2.20.1
 # Env management
 python-dotenv==1.0.1
 
+# jwt handling
+python-jose
+
+# pagination
+fastapi-pagination
