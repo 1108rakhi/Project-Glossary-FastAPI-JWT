@@ -6,6 +6,7 @@ from schemas import schema
 from fastapi import APIRouter, Depends, HTTPException, Query, Header
 from router_users.users import decode_token
 from fastapi_pagination import Page, add_pagination, paginate
+from term_elasticsearch import index_term, es
 
 
 router = APIRouter(tags = ['Glossaries'])
@@ -29,6 +30,7 @@ def create_glossary(create:schema.CreateGlossary, db : Session=Depends(database.
     db.add(new_term)
     db.commit()
     db.refresh(new_term)
+    index_term(new_term.id, new_term.term, new_term.description)
     return new_term
 
 # get all glossaries
@@ -61,6 +63,7 @@ def update_glossary(id: int, update:schema.UpdateGlossary, db:Session = Depends(
     upd_glossary.updated_by = current_user
     db.commit()
     db.refresh(upd_glossary)
+    index_term(upd_glossary.id, upd_glossary.term, upd_glossary.description)
     return upd_glossary
 
 # delete glossaries
@@ -73,5 +76,39 @@ def delete_glossary(id: int, db: Session = Depends(database.get_db)):
     db.commit()
     # db.refresh(del_glossary)
     return {'message':'Term deleted successfully'}
+
+# elastic search endpoint
+@router.get("/search")
+def search_glossary(keyword: str):
+    results = es.search(
+        index="glossary_terms",
+        body = {
+            "query": {
+                "bool": {
+                    "should": [
+                        {
+                            "multi_match": {
+                                "query": keyword,
+                                "fields": ["term", "description"],
+                                "fuzziness": "AUTO"  # typo search
+                            }
+                        },
+                        {
+                            "multi_match": {
+                                "query": f"*{keyword}*",  # substring search
+                                "fields": ["term", "description"]
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+
+
+
+    )
+    hits = results["hits"]["hits"]
+    return {"results": [hit["_source"] for hit in hits]}
+
 
 
