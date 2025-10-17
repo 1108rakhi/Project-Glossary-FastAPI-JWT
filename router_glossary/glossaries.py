@@ -6,7 +6,7 @@ from schemas import schema
 from fastapi import APIRouter, Depends, HTTPException, Query, Header
 from router_users.users import decode_token
 from fastapi_pagination import Page, add_pagination, paginate
-from term_elasticsearch import index_term, es
+from term_elasticsearch import index_term, es, delete_es_term
 
 
 router = APIRouter(tags = ['Glossaries'])
@@ -24,7 +24,7 @@ def create_glossary(create:schema.CreateGlossary, db : Session=Depends(database.
     new_term = model.Glossary(
         term = create.term,
         description = create.description,
-        created_by = current_user
+        # created_by = current_user
         
     )
     db.add(new_term)
@@ -75,6 +75,7 @@ def delete_glossary(id: int, db: Session = Depends(database.get_db)):
     db.delete(del_glossary)
     db.commit()
     # db.refresh(del_glossary)
+    delete_es_term(del_glossary.id)
     return {'message':'Term deleted successfully'}
 
 # elastic search endpoint
@@ -94,7 +95,7 @@ def search_glossary(keyword: str):
                             }
                         },
                         {
-                            "multi_match": {
+                            "query_string": {
                                 "query": f"*{keyword}*",  # substring search
                                 "fields": ["term", "description"]
                             }

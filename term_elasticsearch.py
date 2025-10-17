@@ -19,9 +19,10 @@ def create_index():
             }
         )    
 
-def index_term(id: int, term : str, description: str, created_by:str):
+def index_term(id: int, term : str, description: str):
     doc = {"term":term, "description":description}
     es.index(index= INDEX_NAME, id=id, document = doc)
-    
 
+def delete_es_term(id:int):
+    es.delete(index="glossary_terms", id=id)
 

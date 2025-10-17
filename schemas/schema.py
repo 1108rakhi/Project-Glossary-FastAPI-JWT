@@ -46,6 +46,7 @@ class GlossaryResponse(BaseModel):
         orm_mode = True
 
 class GlossaryPagination(BaseModel):
+    id:int
     term: str
     description : str
     class Config:
