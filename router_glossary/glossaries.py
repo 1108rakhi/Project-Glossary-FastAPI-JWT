@@ -24,7 +24,7 @@ def create_glossary(create:schema.CreateGlossary, db : Session=Depends(database.
     new_term = model.Glossary(
         term = create.term,
         description = create.description,
-        # created_by = current_user
+        created_by = current_user
         
     )
     db.add(new_term)
@@ -44,7 +44,7 @@ def get_glossary(db:Session = Depends(database.get_db)):
 add_pagination(router)
 
 #get glossaries by id
-@router.get('/glossary/{id}', response_model=schema.GlossaryResponse)
+@router.get('/glossary/{id}', response_model =schema.GlossaryResponse)
 def get_glossary_by_id(id:int, db:Session=Depends(database.get_db)):
     glossary = db.query(model.Glossary).filter(model.Glossary.id == id).first()
     if not glossary:

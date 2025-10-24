@@ -20,3 +20,5 @@ python-jose
 
 # pagination
 fastapi-pagination
+
+elasticsearch
