@@ -1,6 +1,6 @@
 from elasticsearch import Elasticsearch
 
-es = Elasticsearch("http://localhost:9200")
+es = Elasticsearch("https://127.0.0.1:9200",basic_auth=("elastic", "XM6m=A+UIHBTpuSanbgA"), ssl_show_warn=False, verify_certs=False)
 
 INDEX_NAME = "glossary_terms"
 
